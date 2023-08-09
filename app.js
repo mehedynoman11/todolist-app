@@ -1,7 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
 const date = require(__dirname + "/date.js");
+const mongoose = require("mongoose");
+const connectDB = require("./db");
+require('dotenv').config();
 
 const app = express();
 
@@ -10,7 +12,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://mehedynoman11:Nomann11123@cluster0.harqqmn.mongodb.net/todolistDB", { useNewUrlParser: true, useUnifiedTopology: true });
+connectDB();
 
 const itemsSchema = {
   name: String
