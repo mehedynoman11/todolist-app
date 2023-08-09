@@ -93,29 +93,27 @@ app.post("/delete", function(req, res) {
     });
 });
 
-app.get("/:customListName", function(req, res) {
+app.get("/:customListName", async function (req, res) {
   const customListName = req.params.customListName;
 
-  List.findOne({ name: customListName })
-    .then(foundList => {
-      if (!foundList) {
-        const list = new List({
-          name: customListName,
-          items: defaultItems
-        });
-        return list.save();
-      } else {
-        return foundList;
-      }
-    })
-    .then(list => {
-      res.render("list", { listTitle: list.name, newListItems: list.items });
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).send("Internal Server Error");
-    });
+  try {
+    const foundList = await List.findOne({ name: customListName }).maxTimeMS(30000);
+    if (!foundList) {
+      const list = new List({
+        name: customListName,
+        items: defaultItems
+      });
+      await list.save();
+      res.redirect("/" + customListName);
+    } else {
+      res.render("list", { listTitle: foundList.name, newListItems: foundList.items });
+    }
+  } catch (error) {
+    console.error("Error finding or creating list:", error.message);
+    res.status(500).send("Error finding or creating the list.");
+  }
 });
+
 
 app.get("/work", function (req, res) {
   res.render("list", { listTitle: "Work List", newListItems: workItems });
